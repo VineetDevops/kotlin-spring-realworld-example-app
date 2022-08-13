@@ -4,8 +4,7 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/java
 
 
-pool:
-  vmImage: 'ubuntu-latest'
+pool: "Laptop"
 
 variables:
   imageName: spring-demo
@@ -14,46 +13,13 @@ variables:
 steps:
 - task: Maven@3
   inputs:
-    mavenPomFile: 'pom.xml'
-    options: '-Dspring.profiles.active=dev'
-    mavenOptions: '-Xmx3072m'
-    javaHomeOption: 'JDKVersion'
-    jdkVersionOption: '1.8'
-    jdkArchitectureOption: 'x64'
-    publishJUnitResults: false
-    testResultsFiles: '**/surefire-reports/TEST-*.xml'
-    goals: 'package'
-- script: |
-    echo Build docker image
-    docker build -t $username.azurecr.io/$(imageName):$(Build.BuildNumber) .
-    echo Login to docker repository
-    docker login -u $username -p $password $username.azurecr.io
-    echo Push docker image
-    docker push $username.azurecr.io/$(imageName):$(Build.BuildNumber)
-  displayName: 'Build and Push Docker Image'
-  env:
-    username: $(acrUsername)
-    password: $(acrPassword)
-- task: HelmInstaller@0
-  displayName: Install Helm
-  inputs:
-    helmVersion: latest
-- task: HelmDeploy@0
-  displayName: helm init --client-only
-  inputs:
-    connectionType: None
-    command: init
-    arguments: '--client-only'
-- task: HelmDeploy@0
-  displayName: Helm package
-  inputs:
-    command: package
-    chartPath: $(chartPath)
-    destination: $(Build.ArtifactStagingDirectory)
-    version: $(Build.BuildNumber)
-    updatedependency: true
-- task: PublishBuildArtifacts@1
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    ArtifactName: 'charts'
-    publishLocation: 'Container'
+      mavenPomFile: 'pom.xml'
+      mavenOptions: '-Xmx3072m'
+      javaHomeOption: 'JDKVersion'
+      jdkVersionOption: '1.11'
+      jdkArchitectureOption: 'x64'
+      publishJUnitResults: true
+      testResultsFiles: '**/surefire-reports/TEST-*.xml'
+      goals: 'package'
+
+  
